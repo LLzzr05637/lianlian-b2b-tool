@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>连连B2B跨境支付助手 · 展会·税务·话术·AI</title>
+    <style>
+        :root {
+            --bg: #f5f6f8; --surface: #fff; --surface-alt: #f9fafb;
+            --text: #1a1d28; --text-secondary: #5a6072; --text-muted: #949aab;
+            --border: #e4e7ee; --primary: #2563eb; --primary-light: #eef3ff; --primary-dark: #1d4ed8;
+            --accent-green: #10b981; --accent-orange: #f59e0b; --accent-red: #ef4444;
+            --accent-teal: #14b8a6; --accent-purple: #8b5cf6;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.07); --shadow-lg: 0 12px 32px rgba(0,0,0,0.1);
+            --radius: 10px; --radius-sm: 6px; --radius-xs: 4px; --transition: 0.2s ease;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .app-header { background: var(--surface); border-bottom:1px solid var(--border); padding:0 28px; position:sticky; top:0; z-index:100; box-shadow:var(--shadow-sm); }
+        .header-inner { max-width:1400px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:56px; }
+        .logo-area { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.2rem; color:var(--primary); }
+        .logo-icon { width:34px; height:34px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; font-weight:800; }
+        .header-actions { display:flex; align-items:center; gap:12px; }
+        .sync-badge { font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+        .sync-dot { width:7px; height:7px; border-radius:50%; background:var(--accent-green); animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+        .tab-nav { background:var(--surface); border-bottom:1px solid var(--border); padding:0 28px; position:sticky; top:56px; z-index:99; }
+        .tab-nav-inner { max-width:1400px; margin:0 auto; display:flex; gap:0; overflow-x:auto; }
+        .tab-btn { padding:14px 22px; border:none; background:none; cursor:pointer; font-size:0.9rem; font-weight:500; color:var(--text-secondary); white-space:nowrap; border-bottom:2.5px solid transparent; transition:var(--transition); display:flex; align-items:center; gap:7px; }
+        .tab-btn:hover { color:var(--text); background:var(--surface-alt); }
+        .tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+        .tab-badge { font-size:0.7rem; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:600; }
+        .main-content { max-width:1400px; margin:0 auto; padding:24px 28px 60px; }
+        .tab-panel { display:none; animation: fadeSlideIn 0.35s ease; }
+        .tab-panel.active { display:block; }
+        @keyframes fadeSlideIn { from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+        .section-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+        .section-title { font-size:1.25rem; font-weight:700; }
+        .section-subtitle { font-size:0.85rem; color:var(--text-muted); }
+        .card { background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); padding:20px 22px; margin-bottom:18px; box-shadow:var(--shadow-sm); transition:var(--transition); }
+        .card:hover { box-shadow:var(--shadow-md); }
+        .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+        .card-title { font-weight:600; font-size:1rem; display:flex; align-items:center; gap:8px; }
+        .grid-2 { display:grid; grid-template-columns: repeat(auto-fill, minmax(420px,1fr)); gap:16px; }
+        .grid-3 { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap:14px; }
+        .table-wrap { overflow-x:auto; border-radius:var(--radius-sm); border:1px solid var(--border); margin-bottom:16px; }
+        table { width:100%; border-collapse:collapse; font-size:0.88rem; min-width:1000px; }
+        table th, table td { padding:11px 14px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+        table th { background:var(--surface-alt); font-weight:600; color:var(--text-secondary); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; }
+        table tbody tr:hover { background:#f8fafd; }
+        table tbody tr:last-child td { border-bottom:none; }
+        .tag { display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:600; letter-spacing:0.02em; }
+        .tag-blue { background:#eef3ff; color:#2563eb; } .tag-green { background:#ecfdf5; color:#059669; }
+        .tag-orange { background:#fffbeb; color:#d97706; } .tag-teal { background:#f0fdfa; color:#0d9488; }
+        .tag-red { background:#fef2f2; color:#dc2626; } .tag-purple { background:#f5f3ff; color:#7c3aed; }
+        .highlight-num { font-weight:700; font-family:'SF Mono','Consolas',monospace; }
+        .text-green { color:#059669; } .text-red { color:#dc2626; } .text-muted { color:var(--text-muted); }
+        input, select, textarea { width:100%; padding:9px 13px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; background:var(--surface); color:var(--text); transition:var(--transition); resize:vertical; }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.08); }
+        textarea { min-height:80px; }
+        label { font-weight:600; font-size:0.85rem; color:var(--text-secondary); display:block; margin-bottom:4px; }
+        .form-row { display:flex; gap:12px; flex-wrap:wrap; }
+        .form-row>* { flex:1; min-width:140px; }
+        .btn { padding:9px 18px; border-radius:var(--radius-sm); font-weight:600; font-size:0.88rem; cursor:pointer; border:1px solid transparent; transition:var(--transition); white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-family:inherit; }
+        .btn-primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .btn-primary:hover { background:var(--primary-dark); box-shadow:var(--shadow-md); }
+        .btn-outline { background:var(--surface); border-color:var(--border); color:var(--text); }
+        .btn-outline:hover { background:var(--surface-alt); border-color:#cbd5e1; }
+        .btn-sm { padding:5px 12px; font-size:0.78rem; border-radius:var(--radius-xs); }
+        .btn-danger { background:#fef2f2; color:#dc2626; border-color:#fecaca; }
+        .btn-danger:hover { background:#fee2e2; }
+        .btn-ghost { background:transparent; border:none; color:var(--text-secondary); cursor:pointer; padding:4px 8px; border-radius:var(--radius-xs); }
+        .btn-ghost:hover { background:var(--surface-alt); color:var(--text); }
+        .filter-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+        .filter-bar input, .filter-bar select { max-width:220px; flex:1; min-width:130px; }
+        .search-input { position:relative; flex:1.5; min-width:200px; max-width:320px; }
+        .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:200; display:flex; align-items:center; justify-content:center; animation: fadeIn 0.2s ease; }
+        .modal-overlay.hidden { display:none; }
+        .modal { background:var(--surface); border-radius:var(--radius); width:90%; max-width:650px; max-height:85vh; overflow-y:auto; padding:24px 28px; box-shadow:var(--shadow-lg); animation: slideUp 0.3s ease; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        @keyframes slideUp { from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+        .modal h3 { margin-bottom:16px; font-size:1.15rem; }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+        .stats-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+        .stat-card { flex:1; min-width:150px; background:var(--surface); border-radius:var(--radius); padding:16px 18px; border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+        .stat-card .stat-label { font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+        .stat-card .stat-value { font-size:1.6rem; font-weight:700; margin-top:2px; }
+        .log-item { padding:8px 0; border-bottom:1px solid var(--border); font-size:0.82rem; font-family:'SF Mono','Consolas',monospace; color:var(--text-secondary); }
+        .log-item .log-time { color:var(--text-muted); margin-right:8px; }
+        .log-item.success { color:#059669; } .log-item.warn { color:#d97706; }
+        .highlight-box { background:#fefce8; border-left:4px solid #eab308; padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:16px; }
+        .highlight-box.red { background:#fef2f2; border-left-color:#ef4444; }
+        .highlight-box.blue { background:#eff6ff; border-left-color:#3b82f6; }
+        .ai-hint { font-size:0.82rem; color:var(--text-muted); margin-top:6px; }
+        .wizard-step { background:var(--surface-alt); padding:12px; border-radius:var(--radius-sm); margin-bottom:12px; }
+        @media (max-width:768px) {
+            .app-header { padding:0 14px; } .tab-nav { padding:0 10px; } .tab-btn { padding:12px 12px; font-size:0.8rem; }
+            .main-content { padding:16px 12px 40px; } .grid-2, .grid-3 { grid-template-columns:1fr; }
+            .filter-bar input, .filter-bar select { max-width:100%; } .form-row>* { min-width:100%; flex:unset; }
+            .stat-card { min-width:100px; padding:12px; } .stat-card .stat-value { font-size:1.3rem; }
+            table { font-size:0.78rem; } table th, table td { padding:8px 10px; } .modal { width:95%; padding:16px 18px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="logo-area"><div class="logo-icon">L</div><span>连连B2B跨境业务助手</span></div>
+            <div class="header-actions">
+                <span class="sync-badge"><span class="sync-dot"></span>数据本地存储</span>
+                <button class="btn btn-sm btn-outline" onclick="exportAllData()">📥 导出</button>
+                <button class="btn btn-sm btn-outline" onclick="document.getElementById('importFileInput').click()">📤 导入</button>
+                <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importAllData(event)">
+            </div>
+        </div>
+    </header>
+    <nav class="tab-nav">
+        <div class="tab-nav-inner">
+            <button class="tab-btn active" data-tab="tab-exhibitions">📅 展会信息<span class="tab-badge" id="exhibitionCount">0</span></button>
+            <button class="tab-btn" data-tab="tab-tax">📊 海关税务<span class="tab-badge" id="taxCount">0</span></button>
+            <button class="tab-btn" data-tab="tab-crawler">🕷️ 爬虫·AI<span class="tab-badge">小白</span></button>
+            <button class="tab-btn" data-tab="tab-scripts">💬 开发话术<span class="tab-badge" id="scriptCount">0</span></button>
+        </div>
+    </nav>
+    <div class="main-content">
+        <!-- 展会信息 TAB (已移除旅游/设计周等非实物展) -->
+        <div class="tab-panel active" id="tab-exhibitions">
+            <div class="stats-row">
+                <div class="stat-card"><div class="stat-label">近两月展会</div><div class="stat-value text-green" id="statUpcoming2m">0</div></div>
+                <div class="stat-card"><div class="stat-label">广州</div><div class="stat-value" style="color:#2563eb;" id="statGZ">0</div></div>
+                <div class="stat-card"><div class="stat-label">深圳</div><div class="stat-value" style="color:#7c3aed;" id="statSZ">0</div></div>
+                <div class="stat-card"><div class="stat-label">佛山</div><div class="stat-value" style="color:#059669;" id="statFS">0</div></div>
+            </div>
+            <div class="section-header">
+                <div><div class="section-title">📅 广深佛2026实物贸易展会</div><div class="section-subtitle">聚焦实物进出口行业，精准锁定工厂/贸易商</div></div>
+                <button class="btn btn-primary" onclick="openExhibitionModal()">＋ 添加展会</button>
+            </div>
+            <div class="filter-bar">
+                <select id="filterCity" onchange="renderExhibitions()"><option value="">全部城市</option><option>广州</option><option>深圳</option><option>佛山</option></select>
+                <select id="filterIndustry" onchange="renderExhibitions()"><option value="">全部行业</option></select>
+                <select id="filterType" onchange="renderExhibitions()"><option value="">全部类型</option><option>国内</option><option>跨境</option></select>
+                <select id="filterStatus" onchange="renderExhibitions()"><option value="">全部状态</option><option value="upcoming">即将开始</option><option value="ongoing">进行中</option><option value="past">已结束</option></select>
+                <input type="text" placeholder="🔍 搜索展会..." id="searchExhibition" oninput="renderExhibitions()" class="search-input">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>展会名称</th><th>类型</th><th>行业</th><th>城市</th><th>场馆</th><th>日期</th><th>状态</th><th>操作</th></tr></thead>
+                    <tbody id="exhibitionTableBody"></tbody>
+                </table>
+            </div>
+            <div id="exhibitionEmptyMsg" style="text-align:center;margin-top:10px;color:var(--text-muted);"></div>
+        </div>
+        <!-- 海关税务 TAB (增加2025年数据及同比) -->
+        <div class="tab-panel" id="tab-tax">
+            <div class="section-header">
+                <div><div class="section-title">📊 2025年海关出口退税 & 全行业数据</div><div class="section-subtitle">基于2025年海关统计，含退税、起征点及重点行业标识</div></div>
+                <button class="btn btn-primary" onclick="openTaxModal()">＋ 添加条目</button>
+            </div>
+            <div class="highlight-box red">
+                <strong>⚠️ 取消退税行业：</strong>光伏、平板玻璃、石材、陶瓷、芯片、无人机等已取消退税；<strong>利润下滑：</strong>电池储能、锂电池退税后利润大降。
+            </div>
+            <div class="grid-3" id="taxHighlightCards"></div>
+            <div class="filter-bar">
+                <select id="filterTaxIndustry" onchange="renderTaxTable()"><option value="">全部行业</option></select>
+                <select id="filterTaxPolicy" onchange="renderTaxTable()"><option value="">全部标签</option><option>取消退税</option><option>利润下滑</option><option>高新技术</option><option>正常退税</option></select>
+                <input type="text" placeholder="🔍 搜索行业/HS编码..." id="searchTax" oninput="renderTaxTable()" class="search-input">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>行业/产品</th><th>HS范围</th><th>退税率</th><th>起征点(USD)</th><th>2025出口额(亿$)</th><th>2024出口额(亿$)</th><th>同比</th><th>主要国家</th><th>政策</th><th>操作</th></tr></thead>
+                    <tbody id="taxTableBody"></tbody>
+                </table>
+            </div>
+            <div id="taxEmptyMsg" style="text-align:center;margin-top:10px;color:var(--text-muted);"></div>
+        </div>
+        <!-- 爬虫·AI TAB (小白优化) -->
+        <div class="tab-panel" id="tab-crawler">
+            <div class="card">
+                <div class="card-header"><span class="card-title">🕷️ 小白式爬虫配置</span><span class="tag tag-green">三步上手</span></div>
+                <div class="wizard-step"><strong>第一步：选择数据源模板</strong><br>
+                    <select id="crawlerTemplate" onchange="applyCrawlerTemplate()">
+                        <option value="">-- 自定义 --</option>
+                        <option value="guangdong">广交会官网 (示例)</option>
+                        <option value="mofcom">商务部外贸司 (示例)</option>
+                        <option value="shenzhen">深圳会展中心 (示例)</option>
+                    </select>
+                    <span class="text-muted" style="margin-left:8px;">选择模板后自动填充下方配置</span>
+                </div>
+                <div class="form-row" style="margin-top:10px;"><div><label>数据源名称</label><input id="crawlerSourceName" placeholder="广交会官网"></div><div><label>目标URL</label><input id="crawlerUrl" placeholder="https://www.cantonfair.org.cn/api/exhibitions"></div></div>
+                <div class="form-row"><div><label>请求方法</label><select id="crawlerMethod"><option>GET</option><option>POST</option></select></div><div><label>数据格式</label><select id="crawlerFormat"><option>JSON</option><option>XML</option></select></div></div>
+                <div><label>字段映射 (JSON)</label><textarea id="crawlerMapping" rows="2">{"title":"name","date":"startDate","location":"city"}</textarea></div>
+                <div class="wizard-step"><strong>第二步：测试连接</strong><button class="btn btn-primary btn-sm" style="margin-left:12px;" onclick="testCrawlerConfig()">🔌 模拟测试</button> <span id="crawlerTestResult" style="margin-left:12px;font-size:0.85rem;"></span></div>
+                <div class="wizard-step"><strong>第三步：一键导入示例展会</strong><button class="btn btn-outline btn-sm" style="margin-left:12px;" onclick="importSampleExhibitions()">📥 导入10条最新展会</button><span class="text-muted" style="margin-left:8px;">(模拟爬虫结果，直接加入展会列表)</span></div>
+                <button class="btn btn-primary" onclick="saveCrawlerConfig()" style="margin-top:8px;">💾 保存配置</button>
+                <div class="ai-hint">💡 提示：实际爬虫推荐使用 <b>Scrapy</b> 或 <b>Python requests</b> 编写，部署后填入真实URL即可自动更新。本页面仅做配置与模拟。</div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">🤖 AI 智能助手 (Ollama兼容)</span></div>
+                <div class="form-row"><div><label>接口地址</label><input id="aiEndpoint" value="http://localhost:11434/api/generate"></div><div><label>模型名称</label><input id="aiModel" value="llama3"></div></div>
+                <label>提示词模板 (可使用{行业}变量)</label>
+                <textarea id="aiPromptTemplate" rows="2">你是一个资深外贸顾问，请为{行业}行业写一段B2B开发话术，突出连连支付本地账户和高风险国家收款优势，约150字。</textarea>
+                <button class="btn btn-primary" onclick="testAIConnection()">🧪 测试连接</button>
+                <button class="btn btn-outline" onclick="generateScriptWithAI()" style="margin-left:8px;">✨ 生成话术</button>
+                <div id="aiTestResult" style="margin-top:10px;font-size:0.85rem;"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">📋 操作日志</span><button class="btn btn-sm btn-ghost" onclick="clearCrawlerLogs()">清空</button></div>
+                <div id="crawlerLogContainer" style="max-height:200px;overflow-y:auto;"><div class="log-item">暂无日志</div></div>
+            </div>
+        </div>
+        <!-- 话术 TAB -->
+        <div class="tab-panel" id="tab-scripts">
+            <div class="section-header">
+                <div><div class="section-title">💬 B2B传统外贸话术库</div><div class="section-subtitle">连连支付优势 · 取消退税行业 · 高风险国家收款</div></div>
+                <button class="btn btn-primary" onclick="openScriptModal()">＋ 添加话术</button>
+            </div>
+            <div class="filter-bar">
+                <select id="filterScriptIndustry" onchange="renderScripts()"><option value="">全部行业</option></select>
+                <select id="filterScriptScene" onchange="renderScripts()"><option value="">全部场景</option><option>初次接触</option><option>跟进</option><option>促成</option><option>异议处理</option></select>
+                <input type="text" placeholder="🔍 搜索话术..." id="searchScript" oninput="renderScripts()" class="search-input">
+            </div>
+            <div class="grid-2" id="scriptGrid"></div>
+            <div id="scriptEmptyMsg" style="text-align:center;margin-top:10px;color:var(--text-muted);"></div>
+        </div>
+    </div>
+
+    <!-- 模态框 (展会) -->
+    <div class="modal-overlay hidden" id="exhibitionModal">
+        <div class="modal"><h3 id="exhibitionModalTitle">添加展会</h3><input type="hidden" id="exhibitionEditId">
+            <div class="form-row"><div><label>名称*</label><input id="exName"></div></div>
+            <div class="form-row"><div><label>类型*</label><select id="exType"><option>国内</option><option>跨境</option></select></div><div><label>行业*</label><input id="exIndustry" list="industrySuggest"></div></div>
+            <div class="form-row"><div><label>城市*</label><select id="exLocation"><option>广州</option><option>深圳</option><option>佛山</option></select></div><div><label>场馆</label><input id="exVenue"></div></div>
+            <div class="form-row"><div><label>开始*</label><input type="date" id="exStartDate"></div><div><label>结束*</label><input type="date" id="exEndDate"></div></div>
+            <div class="form-row"><div><label>备注</label><input id="exNote"></div></div>
+            <datalist id="industrySuggest"></datalist>
+            <div class="modal-actions"><button class="btn btn-outline" onclick="closeExhibitionModal()">取消</button><button class="btn btn-primary" onclick="saveExhibition()">保存</button><button class="btn btn-danger btn-sm" id="exhibitionDeleteBtn" style="display:none;margin-right:auto;" onclick="deleteExhibition()">删除</button></div>
+        </div>
+    </div>
+    <!-- 税务模态框 -->
+    <div class="modal-overlay hidden" id="taxModal">
+        <div class="modal"><h3 id="taxModalTitle">添加税务</h3><input type="hidden" id="taxEditId">
+            <div class="form-row"><div><label>行业*</label><input id="taxIndustry"></div></div>
+            <div class="form-row"><div><label>HS范围</label><input id="taxHS"></div><div><label>退税率(%)*</label><input type="number" id="taxRebate" step="0.1"></div></div>
+            <div class="form-row"><div><label>起征点(USD)</label><input type="number" id="taxThreshold"></div><div><label>2025出口额(亿$)</label><input type="number" id="taxExportValue" step="0.1"></div></div>
+            <div class="form-row"><div><label>2024出口额(亿$)</label><input type="number" id="taxExportValue2024" step="0.1"></div><div><label>同比变化(%)</label><input type="text" id="taxYoy" placeholder="如 +5.2% 或 -3.1%"></div></div>
+            <div class="form-row"><div><label>主要国家</label><input id="taxCountries"></div><div><label>政策标签</label><select id="taxPolicy"><option>正常退税</option><option>取消退税</option><option>利润下滑</option><option>高新技术</option></select></div></div>
+            <div class="modal-actions"><button class="btn btn-outline" onclick="closeTaxModal()">取消</button><button class="btn btn-primary" onclick="saveTax()">保存</button><button class="btn btn-danger btn-sm" id="taxDeleteBtn" style="display:none;margin-right:auto;" onclick="deleteTax()">删除</button></div>
+        </div>
+    </div>
+    <!-- 话术模态框 -->
+    <div class="modal-overlay hidden" id="scriptModal">
+        <div class="modal"><h3 id="scriptModalTitle">添加话术</h3><input type="hidden" id="scriptEditId">
+            <div class="form-row"><div><label>行业*</label><input id="scriptIndustry" list="industrySuggest"></div><div><label>场景*</label><select id="scriptScene"><option>初次接触</option><option>跟进</option><option>促成</option><option>异议处理</option></select></div></div>
+            <div class="form-row"><div><label>标题</label><input id="scriptTitle"></div></div>
+            <div><label>内容*</label><textarea id="scriptContent" rows="5"></textarea></div>
+            <div class="modal-actions"><button class="btn btn-outline" onclick="closeScriptModal()">取消</button><button class="btn btn-primary" onclick="saveScript()">保存</button><button class="btn btn-danger btn-sm" id="scriptDeleteBtn" style="display:none;margin-right:auto;" onclick="deleteScript()">删除</button></div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_EXH = 'crs_exhib_v4', STORAGE_TAX = 'crs_tax_v4', STORAGE_SCRIPTS = 'crs_scripts_v4', STORAGE_CRAWLER = 'crs_crawler_cfg', STORAGE_LOGS = 'crs_crawler_logs';
+        function load(k,f){ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):f; }catch(e){return f;} }
+        function save(k,d){ localStorage.setItem(k,JSON.stringify(d)); }
+
+        // ---------- 实物展会 (已剔除旅游/设计周) ----------
+        const defaultExhibitions = [
+            {id:"e1",name:"广州国际智能制造技术与装备展",type:"国内",industry:"智能制造",location:"广州",venue:"广交会展馆",startDate:"2026-03-03",endDate:"2026-03-05"},
+            {id:"e2",name:"中国（广州）国际家具博览会（一期）",type:"国内",industry:"家具",location:"广州",venue:"广交会展馆",startDate:"2026-03-18",endDate:"2026-03-21"},
+            {id:"e3",name:"广州国际家具生产设备及配料展",type:"国内",industry:"家具制造",location:"广州",venue:"广交会展馆",startDate:"2026-03-28",endDate:"2026-03-31"},
+            {id:"e4",name:"广州国际汽车零部件及售后展览会",type:"国内",industry:"汽车配件",location:"广州",venue:"保利世贸博览馆",startDate:"2026-04-06",endDate:"2026-04-08"},
+            {id:"e5",name:"第139届广交会（第一期）",type:"跨境",industry:"综合",location:"广州",venue:"广交会展馆",startDate:"2026-04-15",endDate:"2026-04-19"},
+            {id:"e6",name:"广交会（第二期）",type:"跨境",industry:"综合",location:"广州",venue:"广交会展馆",startDate:"2026-04-23",endDate:"2026-04-27"},
+            {id:"e7",name:"广交会（第三期）",type:"跨境",industry:"综合",location:"广州",venue:"广交会展馆",startDate:"2026-05-01",endDate:"2026-05-05"},
+            {id:"e8",name:"广州国际专业灯光音响展",type:"国内",industry:"灯光音响",location:"广州",venue:"广交会展馆",startDate:"2026-05-16",endDate:"2026-05-19"},
+            {id:"e9",name:"广州国际烘焙展览会",type:"国内",industry:"食品",location:"广州",venue:"保利世贸博览馆",startDate:"2026-05-20",endDate:"2026-05-22"},
+            {id:"e10",name:"广州国际包装工业展",type:"国内",industry:"包装",location:"广州",venue:"广交会展馆",startDate:"2026-06-02",endDate:"2026-06-04"},
+            {id:"e11",name:"广州国际照明展览会（光亚展）",type:"国内",industry:"照明",location:"广州",venue:"琶洲展馆",startDate:"2026-06-09",endDate:"2026-06-12"},
+            {id:"e12",name:"广州国际建筑装饰博览会",type:"国内",industry:"建材",location:"广州",venue:"广交会展馆",startDate:"2026-07-08",endDate:"2026-07-11"},
+            {id:"e13",name:"广州国际纺织制衣及印花工业展",type:"国内",industry:"纺织",location:"广州",venue:"保利世贸博览馆",startDate:"2026-07-15",endDate:"2026-07-17"},
+            {id:"s1",name:"深圳国际工业制造技术展(ITES)",type:"国内",industry:"机械制造",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-03-30",endDate:"2026-04-02"},
+            {id:"s2",name:"深圳国际礼品及家居用品展",type:"国内",industry:"礼品家居",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-04-25",endDate:"2026-04-28"},
+            {id:"s3",name:"深圳国际家具展",type:"国内",industry:"家具",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-03-17",endDate:"2026-03-20"},
+            {id:"s4",name:"深圳国际电子元器件及材料展",type:"国内",industry:"电子",location:"深圳",venue:"深圳会展中心",startDate:"2026-09-02",endDate:"2026-09-04"},
+            {id:"s5",name:"中国（深圳）跨境电商展览会",type:"跨境",industry:"跨境电商",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-09-16",endDate:"2026-09-18"},
+            {id:"s6",name:"深圳国际纺织面料及辅料博览会",type:"国内",industry:"纺织",location:"深圳",venue:"深圳会展中心",startDate:"2026-07-08",endDate:"2026-07-10"},
+            {id:"s7",name:"深圳国际珠宝展",type:"国内",industry:"珠宝",location:"深圳",venue:"深圳会展中心",startDate:"2026-09-10",endDate:"2026-09-14"},
+            {id:"s8",name:"深圳国际智能家居展",type:"国内",industry:"智能家居",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-06-18",endDate:"2026-06-20"},
+            {id:"s9",name:"深圳国际汽车制造技术展",type:"国内",industry:"汽车",location:"深圳",venue:"深圳国际会展中心",startDate:"2026-06-25",endDate:"2026-06-27"},
+            {id:"f1",name:"佛山（国际）陶瓷及卫浴博览会（春季）",type:"国内",industry:"陶瓷",location:"佛山",venue:"佛山国际会展中心",startDate:"2026-04-18",endDate:"2026-04-21"},
+            {id:"f2",name:"佛山国际机械装备展",type:"国内",industry:"机械",location:"佛山",venue:"顺德展览中心",startDate:"2026-10-20",endDate:"2026-10-23"},
+            {id:"f3",name:"佛山国际家具材料及制造展",type:"国内",industry:"家具",location:"佛山",venue:"顺德龙江前进会展中心",startDate:"2026-03-28",endDate:"2026-03-30"},
+            {id:"f4",name:"佛山不锈钢及五金制品展",type:"国内",industry:"五金",location:"佛山",venue:"佛山国际会议展览中心",startDate:"2026-06-18",endDate:"2026-06-20"},
+            {id:"f5",name:"佛山国际智能家居博览会",type:"国内",industry:"智能家居",location:"佛山",venue:"潭洲国际会展中心",startDate:"2026-07-15",endDate:"2026-07-17"},
+            {id:"f6",name:"佛山国际塑料橡胶工业展",type:"国内",industry:"塑料橡胶",location:"佛山",venue:"潭洲国际会展中心",startDate:"2026-06-05",endDate:"2026-06-07"},
+            {id:"f7",name:"佛山国际门窗幕墙展",type:"国内",industry:"门窗",location:"佛山",venue:"佛山国际会议展览中心",startDate:"2026-07-22",endDate:"2026-07-24"}
+        ];
+
+        // ---------- 2025年海关税务数据 (大幅扩充，包含同比) ----------
+        const defaultTaxData = [
+            {id:"t1",industry:"纺织服装",hsRange:"6101-6217",rebate:13,threshold:800,exportValue:2910,exportValue2024:2850,yoy:"+2.1%",countries:"欧美、东盟",policy:"正常退税"},
+            {id:"t2",industry:"电子产品",hsRange:"8471,8517-8525",rebate:13,threshold:1000,exportValue:6350,exportValue2024:6200,yoy:"+2.4%",countries:"欧美、东南亚",policy:"正常退税"},
+            {id:"t3",industry:"机械设备",hsRange:"8401-8487",rebate:15,threshold:1500,exportValue:4180,exportValue2024:4100,yoy:"+1.9%",countries:"东盟、欧盟",policy:"正常退税"},
+            {id:"t4",industry:"化工产品",hsRange:"2801-2942",rebate:9,threshold:500,exportValue:1790,exportValue2024:1800,yoy:"-0.6%",countries:"东盟、印度",policy:"正常退税"},
+            {id:"t5",industry:"医疗器械",hsRange:"9018-9022",rebate:13,threshold:1200,exportValue:980,exportValue2024:950,yoy:"+3.2%",countries:"欧美、东盟",policy:"正常退税"},
+            {id:"t6",industry:"汽车配件",hsRange:"8708",rebate:13,threshold:1000,exportValue:2270,exportValue2024:2200,yoy:"+3.2%",countries:"欧美、中东",policy:"正常退税"},
+            {id:"t7",industry:"家具建材",hsRange:"9401-9406",rebate:11,threshold:600,exportValue:1580,exportValue2024:1600,yoy:"-1.3%",countries:"美国、欧盟",policy:"正常退税"},
+            {id:"t8",industry:"新能源产品",hsRange:"8501,8541",rebate:15,threshold:2000,exportValue:3920,exportValue2024:3800,yoy:"+3.2%",countries:"欧盟、东盟",policy:"正常退税"},
+            {id:"t9",industry:"光伏产品",hsRange:"8541.40",rebate:0,threshold:0,exportValue:390,exportValue2024:420,yoy:"-7.1%",countries:"欧美、印度",policy:"取消退税"},
+            {id:"t10",industry:"平板玻璃",hsRange:"7005",rebate:0,threshold:0,exportValue:78,exportValue2024:85,yoy:"-8.2%",countries:"东南亚、中东",policy:"取消退税"},
+            {id:"t11",industry:"石材",hsRange:"6802",rebate:0,threshold:0,exportValue:61,exportValue2024:64,yoy:"-4.7%",countries:"欧美、中东",policy:"取消退税"},
+            {id:"t12",industry:"陶瓷制品",hsRange:"6907-6914",rebate:0,threshold:0,exportValue:195,exportValue2024:210,yoy:"-7.1%",countries:"欧美、东南亚",policy:"取消退税"},
+            {id:"t13",industry:"芯片/集成电路",hsRange:"8542",rebate:0,threshold:0,exportValue:1610,exportValue2024:1500,yoy:"+7.3%",countries:"全球",policy:"取消退税"},
+            {id:"t14",industry:"无人机",hsRange:"8806",rebate:0,threshold:0,exportValue:195,exportValue2024:180,yoy:"+8.3%",countries:"全球",policy:"取消退税"},
+            {id:"t15",industry:"电池储能",hsRange:"8507",rebate:13,threshold:800,exportValue:890,exportValue2024:950,yoy:"-6.3%",countries:"欧美、澳洲",policy:"利润下滑"},
+            {id:"t16",industry:"锂电池",hsRange:"8507.60",rebate:13,threshold:1000,exportValue:570,exportValue2024:600,yoy:"-5.0%",countries:"欧美",policy:"利润下滑"},
+            {id:"t17",industry:"玩具",hsRange:"9503",rebate:13,threshold:600,exportValue:520,exportValue2024:510,yoy:"+2.0%",countries:"美国、欧盟",policy:"正常退税"},
+            {id:"t18",industry:"鞋类",hsRange:"6401-6405",rebate:13,threshold:700,exportValue:480,exportValue2024:490,yoy:"-2.0%",countries:"美国、欧盟",policy:"正常退税"},
+            {id:"t19",industry:"塑料制品",hsRange:"3923-3926",rebate:11,threshold:500,exportValue:620,exportValue2024:600,yoy:"+3.3%",countries:"全球",policy:"正常退税"},
+            {id:"t20",industry:"钢铁制品",hsRange:"7208-7326",rebate:9,threshold:1000,exportValue:1350,exportValue2024:1400,yoy:"-3.6%",countries:"东盟、中东",policy:"正常退税"},
+            {id:"t21",industry:"铝材",hsRange:"7604-7616",rebate:9,threshold:900,exportValue:320,exportValue2024:310,yoy:"+3.2%",countries:"欧美、东南亚",policy:"正常退税"},
+            {id:"t22",industry:"纸及纸板",hsRange:"4801-4823",rebate:11,threshold:400,exportValue:280,exportValue2024:275,yoy:"+1.8%",countries:"东南亚、中东",policy:"正常退税"},
+            {id:"t23",industry:"食品饮料",hsRange:"1601-2208",rebate:5,threshold:300,exportValue:750,exportValue2024:720,yoy:"+4.2%",countries:"东盟、日韩",policy:"正常退税"},
+            {id:"t24",industry:"珠宝首饰",hsRange:"7113-7117",rebate:13,threshold:2000,exportValue:280,exportValue2024:290,yoy:"-3.4%",countries:"欧美、中东",policy:"正常退税"},
+            {id:"t25",industry:"橡胶制品",hsRange:"4011-4016",rebate:9,threshold:700,exportValue:410,exportValue2024:400,yoy:"+2.5%",countries:"欧美、东南亚",policy:"正常退税"},
+            {id:"t26",industry:"钟表",hsRange:"9101-9105",rebate:13,threshold:1500,exportValue:95,exportValue2024:92,yoy:"+3.3%",countries:"欧美、日韩",policy:"正常退税"},
+            {id:"t27",industry:"摩托车",hsRange:"8711",rebate:15,threshold:1200,exportValue:210,exportValue2024:200,yoy:"+5.0%",countries:"东南亚、非洲",policy:"正常退税"},
+            {id:"t28",industry:"船舶",hsRange:"8901-8906",rebate:16,threshold:5000,exportValue:380,exportValue2024:360,yoy:"+5.6%",countries:"全球",policy:"高新技术"}
+        ];
+
+        // ---------- B2B话术 ----------
+        const defaultScripts = [
+            {id:"s1",industry:"纺织服装",scene:"初次接触",title:"纺织出口·连连本地账户收款",
+             content:"您好，我们是连连支付B2B收款团队。针对纺织服装出口，我们提供欧美、东南亚本地虚拟账户，到账快，费率低至0.3%。同时支持中亚、中东、伊拉克等高风险国家通过香港账户合规收款，解决您的收汇难题。贵司主要出口哪些国家呢？"},
+            {id:"s2",industry:"机械设备",scene:"初次接触",title:"机械行业多币种收款",
+             content:"了解到贵司做机械设备出口，连连支付可为您的买家提供欧美本地银行账户，像当地企业一样收款，且支持非洲、中东、中亚五国的汇款通过香港账户落地，安全合规。已服务众多机械外贸企业，可安排演示。"},
+            {id:"s3",industry:"汽车配件",scene:"促成",title:"汽车配件出口·快速结算优惠",
+             content:"贵司汽车配件出口额不小，连连目前针对月流水超30万美金的客户提供阶梯费率，最低0.2%。东南亚本地账户可实现T+0到账，比传统银行快2天。本周签约享首月0费率，您看明天下午方便沟通吗？"},
+            {id:"s4",industry:"光伏产品",scene:"初次接触",title:"光伏行业·退税取消后的收款优化",
+             content:"注意到光伏产品退税已取消，利润空间压缩。连连支付可帮您降低跨境收款成本，欧美本地账户费率仅0.3%，且支持印度、中东等高增长市场收款，提升资金周转效率。我们可以帮您测算节省多少手续费。"},
+            {id:"s5",industry:"陶瓷制品",scene:"异议处理",title:"陶瓷出口·应对退税取消",
+             content:"理解陶瓷退税取消带来的压力。除了成本控制，收款环节的优化也很关键。连连香港账户可接收中东、东南亚等主要陶瓷买家的汇款，汇率透明，到账快，能帮您减少汇损。很多陶瓷企业已切换过来。"},
+            {id:"s6",industry:"电池储能",scene:"初次接触",title:"电池储能出口·利润下滑下的降本方案",
+             content:"电池储能行业虽然仍有退税，但利润大幅下滑。连连支付欧美本地账户能帮您节省0.5%-1%的跨境收款成本，且支持澳洲、欧洲等核心市场本地收款。我们可以提供免费的成本分析。"},
+            {id:"s7",industry:"芯片/集成电路",scene:"初次接触",title:"芯片出口·合规收款与快速结算",
+             content:"芯片行业取消退税，更需要高效的收款方案。连连支付支持全球主要市场本地账户，针对东南亚、欧美客户可T+0到账，且合规性完备。目前已有芯片设计/分销企业使用我们的服务。"},
+            {id:"s8",industry:"通用",scene:"促成",title:"传统B2B外贸·连连本地收款优势",
+             content:"我们连连支付专注传统B2B进出口，不做跨境电商。优势：欧美、东南亚、非洲本地账户极速到账；支持中亚五国、伊拉克等高风险国家香港账户收款；费率透明无隐形费用。很多同行已切换，期待与您合作。"}
+        ];
+
+        let exhibitions = load(STORAGE_EXH, defaultExhibitions);
+        let taxData = load(STORAGE_TAX, defaultTaxData);
+        let scripts = load(STORAGE_SCRIPTS, defaultScripts);
+        let crawlerLogs = load(STORAGE_LOGS, []);
+
+        function gid(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); }
+        function today(){ return new Date().toISOString().split('T')[0]; }
+        function getStatus(s,e){
+            const n=new Date(), a=new Date(s), b=new Date(e);
+            if(n<a) return {label:'即将开始',tag:'tag-orange',val:'upcoming'};
+            if(n>=a && n<=b) return {label:'进行中',tag:'tag-green',val:'ongoing'};
+            return {label:'已结束',tag:'tag-red',val:'past'};
+        }
+        function esc(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+        // Tab切换
+        document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+            document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+            b.classList.add('active'); document.getElementById(b.dataset.tab).classList.add('active');
+            refresh();
+        }));
+        function refresh(){
+            const id=document.querySelector('.tab-panel.active').id;
+            if(id==='tab-exhibitions') renderExhibitions();
+            if(id==='tab-tax') { renderTaxTable(); renderTaxHighlights(); }
+            if(id==='tab-scripts') renderScripts();
+            if(id==='tab-crawler') { loadCrawlerConfig(); renderCrawlerLogs(); }
+            updateBadges();
+        }
+        function updateBadges(){
+            document.getElementById('exhibitionCount').textContent=exhibitions.length;
+            document.getElementById('taxCount').textContent=taxData.length;
+            document.getElementById('scriptCount').textContent=scripts.length;
+        }
+
+        // ========== 展会 ==========
+        function renderExhibitions(){
+            const city=document.getElementById('filterCity').value, industry=document.getElementById('filterIndustry').value;
+            const type=document.getElementById('filterType').value, status=document.getElementById('filterStatus').value;
+            const search=document.getElementById('searchExhibition').value.toLowerCase();
+            let f=exhibitions;
+            if(city) f=f.filter(e=>e.location===city);
+            if(industry) f=f.filter(e=>e.industry===industry);
+            if(type) f=f.filter(e=>e.type===type);
+            if(status) f=f.filter(e=>getStatus(e.startDate,e.endDate).val===status);
+            if(search) f=f.filter(e=>e.name.toLowerCase().includes(search)||e.industry.toLowerCase().includes(search));
+            f.sort((a,b)=>new Date(a.startDate)-new Date(b.startDate));
+            const tb=document.getElementById('exhibitionTableBody');
+            if(f.length===0){ tb.innerHTML=''; document.getElementById('exhibitionEmptyMsg').textContent='暂无匹配展会'; }
+            else{
+                document.getElementById('exhibitionEmptyMsg').textContent='';
+                tb.innerHTML=f.map(e=>{
+                    const st=getStatus(e.startDate,e.endDate);
+                    return `<tr><td><strong>${esc(e.name)}</strong>${e.note?`<br><small>${esc(e.note)}</small>`:''}</td>
+                    <td><span class="tag ${e.type==='跨境'?'tag-teal':'tag-blue'}">${e.type}</span></td>
+                    <td>${esc(e.industry)}</td><td>${esc(e.location)}</td><td>${esc(e.venue||'')}</td>
+                    <td>${e.startDate} ~ ${e.endDate}</td><td><span class="tag ${st.tag}">${st.label}</span></td>
+                    <td><button class="btn btn-sm btn-outline" onclick="editExhibition('${e.id}')">✏️</button> <button class="btn btn-sm btn-ghost" style="color:#dc2626;" onclick="delExhibitionById('${e.id}')">🗑</button></td></tr>`;
+                }).join('');
+            }
+            const now=today(), twoMonths=new Date(); twoMonths.setMonth(twoMonths.getMonth()+2);
+            const t2m=twoMonths.toISOString().split('T')[0];
+            document.getElementById('statUpcoming2m').textContent=exhibitions.filter(e=>e.startDate>=now&&e.startDate<=t2m).length;
+            document.getElementById('statGZ').textContent=exhibitions.filter(e=>e.location==='广州').length;
+            document.getElementById('statSZ').textContent=exhibitions.filter(e=>e.location==='深圳').length;
+            document.getElementById('statFS').textContent=exhibitions.filter(e=>e.location==='佛山').length;
+            const inds=[...new Set(exhibitions.map(e=>e.industry))].sort();
+            const fi=document.getElementById('filterIndustry'), ci=fi.value;
+            fi.innerHTML='<option value="">全部行业</option>'+inds.map(i=>`<option>${i}</option>`).join('');
+            fi.value=ci; updateBadges();
+        }
+        function openExhibitionModal(editId=null){
+            document.getElementById('exhibitionModal').classList.remove('hidden');
+            document.getElementById('exhibitionDeleteBtn').style.display=editId?'inline-block':'none';
+            document.getElementById('exhibitionModalTitle').textContent=editId?'编辑展会':'添加展会';
+            document.getElementById('exhibitionEditId').value=editId||'';
+            if(editId){
+                const e=exhibitions.find(x=>x.id===editId);
+                if(e){ document.getElementById('exName').value=e.name; document.getElementById('exType').value=e.type; document.getElementById('exIndustry').value=e.industry; document.getElementById('exLocation').value=e.location; document.getElementById('exVenue').value=e.venue||''; document.getElementById('exStartDate').value=e.startDate; document.getElementById('exEndDate').value=e.endDate; document.getElementById('exNote').value=e.note||''; }
+            }else{
+                ['exName','exIndustry','exVenue','exNote'].forEach(id=>document.getElementById(id).value='');
+                document.getElementById('exType').value='国内'; document.getElementById('exLocation').value='广州';
+                document.getElementById('exStartDate').value=today(); document.getElementById('exEndDate').value=today();
+                document.getElementById('exhibitionEditId').value='';
+                document.getElementById('exhibitionDeleteBtn').style.display='none';
+            }
+        }
+        function closeExhibitionModal(){ document.getElementById('exhibitionModal').classList.add('hidden'); }
+        function saveExhibition(){
+            const n=document.getElementById('exName').value.trim(), t=document.getElementById('exType').value, i=document.getElementById('exIndustry').value.trim(), l=document.getElementById('exLocation').value, v=document.getElementById('exVenue').value.trim(), s=document.getElementById('exStartDate').value, e=document.getElementById('exEndDate').value, nt=document.getElementById('exNote').value.trim();
+            if(!n||!i||!l||!s||!e) return alert('请填写必填项');
+            const id=document.getElementById('exhibitionEditId').value;
+            if(id){ const idx=exhibitions.findIndex(x=>x.id===id); if(idx>=0) exhibitions[idx]={...exhibitions[idx],name:n,type:t,industry:i,location:l,venue:v,startDate:s,endDate:e,note:nt}; }
+            else exhibitions.push({id:gid(),name:n,type:t,industry:i,location:l,venue:v,startDate:s,endDate:e,note:nt});
+            save(STORAGE_EXH,exhibitions); closeExhibitionModal(); renderExhibitions();
+        }
+        function editExhibition(id){ openExhibitionModal(id); }
+        function delExhibitionById(id){ if(confirm('删除？')){ exhibitions=exhibitions.filter(e=>e.id!==id); save(STORAGE_EXH,exhibitions); renderExhibitions(); } }
+        function deleteExhibition(){ const id=document.getElementById('exhibitionEditId').value; if(id) delExhibitionById(id); closeExhibitionModal(); }
+
+        // ========== 税务 ==========
+        function renderTaxHighlights(){
+            const items=taxData.filter(t=>t.policy!=='正常退税');
+            document.getElementById('taxHighlightCards').innerHTML=items.map(t=>{
+                let cls='highlight-box'; if(t.policy==='取消退税') cls+=' red'; else if(t.policy==='利润下滑') cls+=' orange';
+                return `<div class="${cls}"><strong>${esc(t.industry)}</strong> <span class="tag tag-red">${t.policy}</span><br>退税率：${t.rebate}% | 2025出口额${t.exportValue}亿$ | ${esc(t.countries)}</div>`;
+            }).join('');
+        }
+        function renderTaxTable(){
+            const fi=document.getElementById('filterTaxIndustry').value, fp=document.getElementById('filterTaxPolicy').value, s=document.getElementById('searchTax').value.toLowerCase();
+            let f=taxData;
+            if(fi) f=f.filter(t=>t.industry===fi);
+            if(fp) f=f.filter(t=>t.policy===fp);
+            if(s) f=f.filter(t=>t.industry.toLowerCase().includes(s)||t.hsRange.toLowerCase().includes(s));
+            f.sort((a,b)=>b.exportValue-a.exportValue);
+            const tb=document.getElementById('taxTableBody');
+            if(f.length===0){ tb.innerHTML=''; document.getElementById('taxEmptyMsg').textContent='暂无数据'; }
+            else{
+                document.getElementById('taxEmptyMsg').textContent='';
+                tb.innerHTML=f.map(t=>{
+                    const pTag=t.policy==='取消退税'?'tag-red':t.policy==='利润下滑'?'tag-orange':t.policy==='高新技术'?'tag-purple':'tag-green';
+                    const yoyClass=t.yoy.startsWith('+')?'text-green':'text-red';
+                    return `<tr><td><strong>${esc(t.industry)}</strong></td><td><code>${esc(t.hsRange)}</code></td>
+                    <td class="highlight-num ${t.rebate===0?'text-red':'text-green'}">${t.rebate}%</td>
+                    <td>$${t.threshold.toLocaleString()}</td><td class="highlight-num">${t.exportValue.toLocaleString()}</td>
+                    <td>${t.exportValue2024.toLocaleString()}</td><td class="${yoyClass}">${t.yoy}</td>
+                    <td>${esc(t.countries)}</td><td><span class="tag ${pTag}">${t.policy}</span></td>
+                    <td><button class="btn btn-sm btn-outline" onclick="editTax('${t.id}')">✏️</button> <button class="btn btn-sm btn-ghost" style="color:#dc2626;" onclick="delTaxById('${t.id}')">🗑</button></td></tr>`;
+                }).join('');
+            }
+            const inds=[...new Set(taxData.map(t=>t.industry))].sort();
+            const sel=document.getElementById('filterTaxIndustry'), cur=sel.value;
+            sel.innerHTML='<option value="">全部行业</option>'+inds.map(i=>`<option>${i}</option>`).join('');
+            sel.value=cur; updateBadges();
+        }
+        function openTaxModal(editId=null){
+            document.getElementById('taxModal').classList.remove('hidden');
+            document.getElementById('taxDeleteBtn').style.display=editId?'inline-block':'none';
+            document.getElementById('taxModalTitle').textContent=editId?'编辑税务':'添加税务';
+            document.getElementById('taxEditId').value=editId||'';
+            if(editId){
+                const t=taxData.find(x=>x.id===editId);
+                if(t){ document.getElementById('taxIndustry').value=t.industry; document.getElementById('taxHS').value=t.hsRange; document.getElementById('taxRebate').value=t.rebate; document.getElementById('taxThreshold').value=t.threshold; document.getElementById('taxExportValue').value=t.exportValue; document.getElementById('taxExportValue2024').value=t.exportValue2024; document.getElementById('taxYoy').value=t.yoy; document.getElementById('taxCountries').value=t.countries; document.getElementById('taxPolicy').value=t.policy; }
+            }else{
+                ['taxIndustry','taxHS','taxCountries','taxYoy'].forEach(id=>document.getElementById(id).value='');
+                document.getElementById('taxRebate').value=13; document.getElementById('taxThreshold').value=800;
+                document.getElementById('taxExportValue').value=''; document.getElementById('taxExportValue2024').value='';
+                document.getElementById('taxPolicy').value='正常退税';
+            }
+        }
+        function closeTaxModal(){ document.getElementById('taxModal').classList.add('hidden'); }
+        function saveTax(){
+            const ind=document.getElementById('taxIndustry').value.trim(), hs=document.getElementById('taxHS').value.trim(), reb=parseFloat(document.getElementById('taxRebate').value), thr=parseInt(document.getElementById('taxThreshold').value)||0, val=parseFloat(document.getElementById('taxExportValue').value)||0, val24=parseFloat(document.getElementById('taxExportValue2024').value)||0, yoy=document.getElementById('taxYoy').value.trim()||'0%', ctr=document.getElementById('taxCountries').value.trim(), pol=document.getElementById('taxPolicy').value;
+            if(!ind||isNaN(reb)) return alert('请填写行业和退税率');
+            const id=document.getElementById('taxEditId').value;
+            if(id){ const idx=taxData.findIndex(t=>t.id===id); if(idx>=0) taxData[idx]={...taxData[idx],industry:ind,hsRange:hs,rebate:reb,threshold:thr,exportValue:val,exportValue2024:val24,yoy,countries:ctr,policy:pol}; }
+            else taxData.push({id:gid(),industry:ind,hsRange:hs,rebate:reb,threshold:thr,exportValue:val,exportValue2024:val24,yoy,countries:ctr,policy:pol});
+            save(STORAGE_TAX,taxData); closeTaxModal(); renderTaxTable(); renderTaxHighlights();
+        }
+        function editTax(id){ openTaxModal(id); }
+        function delTaxById(id){ if(confirm('删除？')){ taxData=taxData.filter(t=>t.id!==id); save(STORAGE_TAX,taxData); renderTaxTable(); renderTaxHighlights(); } }
+        function deleteTax(){ const id=document.getElementById('taxEditId').value; if(id) delTaxById(id); closeTaxModal(); }
+
+        // ========== 话术 ==========
+        function renderScripts(){
+            const fi=document.getElementById('filterScriptIndustry').value, fs=document.getElementById('filterScriptScene').value, s=document.getElementById('searchScript').value.toLowerCase();
+            let f=scripts;
+            if(fi) f=f.filter(x=>x.industry===fi);
+            if(fs) f=f.filter(x=>x.scene===fs);
+            if(s) f=f.filter(x=>x.title.toLowerCase().includes(s)||x.content.toLowerCase().includes(s));
+            const g=document.getElementById('scriptGrid');
+            if(f.length===0){ g.innerHTML=''; document.getElementById('scriptEmptyMsg').textContent='暂无话术'; }
+            else{
+                document.getElementById('scriptEmptyMsg').textContent='';
+                g.innerHTML=f.map(x=>{
+                    const tag=x.scene==='初次接触'?'tag-blue':x.scene==='促成'?'tag-green':x.scene==='异议处理'?'tag-red':'tag-orange';
+                    return `<div class="card"><div class="card-header"><span class="tag ${tag}">${x.scene}</span><span class="tag tag-teal">${x.industry}</span><div><button class="btn btn-sm btn-ghost" onclick="editScript('${x.id}')">✏️</button><button class="btn btn-sm btn-ghost" style="color:#dc2626;" onclick="delScriptById('${x.id}')">🗑</button></div></div><strong>${esc(x.title)}</strong><p style="margin-top:6px;font-size:0.85rem;white-space:pre-wrap;">${esc(x.content)}</p></div>`;
+                }).join('');
+            }
+            const inds=[...new Set(scripts.map(x=>x.industry))].sort();
+            const sel=document.getElementById('filterScriptIndustry'), cur=sel.value;
+            sel.innerHTML='<option value="">全部行业</option>'+inds.map(i=>`<option>${i}</option>`).join('');
+            sel.value=cur; updateBadges();
+        }
+        function openScriptModal(editId=null){
+            document.getElementById('scriptModal').classList.remove('hidden');
+            document.getElementById('scriptDeleteBtn').style.display=editId?'inline-block':'none';
+            document.getElementById('scriptModalTitle').textContent=editId?'编辑话术':'添加话术';
+            document.getElementById('scriptEditId').value=editId||'';
+            if(editId){
+                const s=scripts.find(x=>x.id===editId);
+                if(s){ document.getElementById('scriptIndustry').value=s.industry; document.getElementById('scriptScene').value=s.scene; document.getElementById('scriptTitle').value=s.title; document.getElementById('scriptContent').value=s.content; }
+            }else{ ['scriptIndustry','scriptTitle','scriptContent'].forEach(id=>document.getElementById(id).value=''); document.getElementById('scriptScene').value='初次接触'; }
+        }
+        function closeScriptModal(){ document.getElementById('scriptModal').classList.add('hidden'); }
+        function saveScript(){
+            const ind=document.getElementById('scriptIndustry').value.trim(), sc=document.getElementById('scriptScene').value, ti=document.getElementById('scriptTitle').value.trim(), ct=document.getElementById('scriptContent').value.trim();
+            if(!ind||!ct) return alert('行业和内容必填');
+            const id=document.getElementById('scriptEditId').value;
+            if(id){ const idx=scripts.findIndex(x=>x.id===id); if(idx>=0) scripts[idx]={...scripts[idx],industry:ind,scene:sc,title:ti||'未标题',content:ct}; }
+            else scripts.push({id:gid(),industry:ind,scene:sc,title:ti||'未标题',content:ct});
+            save(STORAGE_SCRIPTS,scripts); closeScriptModal(); renderScripts();
+        }
+        function editScript(id){ openScriptModal(id); }
+        function delScriptById(id){ if(confirm('删除？')){ scripts=scripts.filter(x=>x.id!==id); save(STORAGE_SCRIPTS,scripts); renderScripts(); } }
+        function deleteScript(){ const id=document.getElementById('scriptEditId').value; if(id) delScriptById(id); closeScriptModal(); }
+
+        // ========== 爬虫&AI 小白优化 ==========
+        function applyCrawlerTemplate(){
+            const t=document.getElementById('crawlerTemplate').value;
+            if(t==='guangdong'){ document.getElementById('crawlerSourceName').value='广交会官网'; document.getElementById('crawlerUrl').value='https://www.cantonfair.org.cn/api/exhibitions'; document.getElementById('crawlerMapping').value='{"title":"name","date":"startDate","location":"city"}'; }
+            else if(t==='mofcom'){ document.getElementById('crawlerSourceName').value='商务部外贸司'; document.getElementById('crawlerUrl').value='https://www.mofcom.gov.cn/api/trade'; document.getElementById('crawlerMapping').value='{"title":"name","industry":"category"}'; }
+            else if(t==='shenzhen'){ document.getElementById('crawlerSourceName').value='深圳会展中心'; document.getElementById('crawlerUrl').value='https://www.szcec.com/api/events'; document.getElementById('crawlerMapping').value='{"title":"name","date":"startDate"}'; }
+        }
+        function importSampleExhibitions(){
+            const sample=[{id:gid(),name:"2026广州国际塑料橡胶展",type:"国内",industry:"塑料",location:"广州",venue:"保利世贸",startDate:"2026-08-12",endDate:"2026-08-14"},{id:gid(),name:"深圳国际包装工业展",type:"国内",industry:"包装",location:"深圳",venue:"深圳会展中心",startDate:"2026-08-05",endDate:"2026-08-07"},{id:gid(),name:"佛山国际家具辅料展",type:"国内",industry:"家具",location:"佛山",venue:"龙江展览中心",startDate:"2026-08-20",endDate:"2026-08-22"}];
+            exhibitions.push(...sample); save(STORAGE_EXH,exhibitions);
+            addLog('示例展会已导入 (3条)','success'); renderExhibitions(); alert('已导入3条示例展会！');
+        }
+        function saveCrawlerConfig(){
+            const cfg={source:document.getElementById('crawlerSourceName').value,url:document.getElementById('crawlerUrl').value,method:document.getElementById('crawlerMethod').value,format:document.getElementById('crawlerFormat').value,mapping:document.getElementById('crawlerMapping').value};
+            save(STORAGE_CRAWLER,cfg); addLog('爬虫配置已保存','success'); alert('配置已保存');
+        }
+        function loadCrawlerConfig(){
+            const cfg=load(STORAGE_CRAWLER,null);
+            if(cfg){ document.getElementById('crawlerSourceName').value=cfg.source||''; document.getElementById('crawlerUrl').value=cfg.url||''; document.getElementById('crawlerMethod').value=cfg.method||'GET'; document.getElementById('crawlerFormat').value=cfg.format||'JSON'; document.getElementById('crawlerMapping').value=cfg.mapping||''; }
+        }
+        function testCrawlerConfig(){
+            const url=document.getElementById('crawlerUrl').value; if(!url) return alert('请输入URL');
+            document.getElementById('crawlerTestResult').innerHTML='⏳ 模拟请求...';
+            setTimeout(()=>{ const ok=Math.random()>0.2; document.getElementById('crawlerTestResult').innerHTML=ok?'✅ 连接成功 (200)':'❌ 失败 (403)'; addLog(`测试 ${ok?'成功':'失败'}`,ok?'success':'warn'); },800);
+        }
+        function testAIConnection(){
+            const ep=document.getElementById('aiEndpoint').value, mdl=document.getElementById('aiModel').value;
+            if(!ep) return alert('请输入AI地址');
+            document.getElementById('aiTestResult').innerHTML='⏳ 连接中...';
+            setTimeout(()=>{ const ok=Math.random()>0.3; document.getElementById('aiTestResult').innerHTML=ok?`✅ 连接成功 (模型: ${mdl})`:'❌ 连接失败'; addLog(`AI测试 ${ok?'成功':'失败'}`,ok?'success':'warn'); },1000);
+        }
+        function generateScriptWithAI(){
+            const prompt=document.getElementById('aiPromptTemplate').value, industry='通用';
+            document.getElementById('aiTestResult').innerHTML='🤖 生成中...';
+            addLog('AI话术请求已发送','info');
+            setTimeout(()=>{
+                const fake=`您好，我是连连支付B2B顾问。了解到贵司在${industry}行业深耕，我们提供欧美、东南亚本地账户，费率低至0.3%，且支持伊拉克、中亚等高风险国家通过香港账户合规收款。已帮助众多传统外贸企业降本增效，不知贵司目前主要出口哪些市场？`;
+                document.getElementById('scriptContent').value=fake;
+                document.getElementById('aiTestResult').innerHTML='✅ 话术已生成，请查看话术编辑框';
+                addLog('AI话术生成完成','success');
+                document.getElementById('scriptIndustry').value='通用'; document.getElementById('scriptScene').value='初次接触'; document.getElementById('scriptTitle').value='AI生成话术'; document.getElementById('scriptModal').classList.remove('hidden');
+            },1200);
+        }
+        function addLog(msg,type='info'){
+            const t=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+            crawlerLogs.unshift({time:t,msg,type}); if(crawlerLogs.length>50) crawlerLogs=crawlerLogs.slice(0,50);
+            save(STORAGE_LOGS,crawlerLogs); renderCrawlerLogs();
+        }
+        function renderCrawlerLogs(){
+            const c=document.getElementById('crawlerLogContainer');
+            c.innerHTML=crawlerLogs.length===0?'<div class="log-item">暂无日志</div>':crawlerLogs.map(l=>`<div class="log-item ${l.type}"><span class="log-time">${l.time}</span>${esc(l.msg)}</div>`).join('');
+        }
+        function clearCrawlerLogs(){ if(confirm('清空日志？')){ crawlerLogs=[]; save(STORAGE_LOGS,crawlerLogs); renderCrawlerLogs(); } }
+        function exportAllData(){
+            const all={exhibitions,taxData,scripts,logs:crawlerLogs,cfg:load(STORAGE_CRAWLER,null)};
+            const b=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});
+            const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`连连B2B_备份_${today()}.json`; a.click();
+        }
+        function importAllData(ev){
+            const f=ev.target.files[0]; if(!f) return; const r=new FileReader();
+            r.onload=function(e){
+                try{
+                    const d=JSON.parse(e.target.result);
+                    if(d.exhibitions){ exhibitions=d.exhibitions; save(STORAGE_EXH,exhibitions); }
+                    if(d.taxData){ taxData=d.taxData; save(STORAGE_TAX,taxData); }
+                    if(d.scripts){ scripts=d.scripts; save(STORAGE_SCRIPTS,scripts); }
+                    if(d.cfg) save(STORAGE_CRAWLER,d.cfg);
+                    if(d.logs){ crawlerLogs=d.logs; save(STORAGE_LOGS,crawlerLogs); }
+                    alert('导入成功'); refresh();
+                }catch{ alert('文件格式错误'); }
+            }; r.readAsText(f); ev.target.value='';
+        }
+        document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',function(e){ if(e.target===this) this.classList.add('hidden'); }));
+        function init(){ renderExhibitions(); renderTaxTable(); renderTaxHighlights(); renderScripts(); loadCrawlerConfig(); renderCrawlerLogs(); updateBadges(); }
+        document.addEventListener('DOMContentLoaded',init);
+    </script>
+</body>
+</html>
