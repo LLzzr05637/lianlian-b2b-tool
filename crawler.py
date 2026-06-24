@@ -60,18 +60,17 @@ def parse_gz_exhibitions(html):
     """解析广州会展网页面，返回展会列表"""
     soup = BeautifulSoup(html, 'html.parser')
     exhibitions = []
-    # --- 请根据实际页面结构调整选择器 ---
-    # 示例：假设展会在 class="exh-item" 的div中
-    items = soup.select('.exh-item')
+    # 真实页面选择器
+    items = soup.select('div.list-content ul li')
     for item in items:
         try:
-            name = item.select_one('.title').get_text(strip=True)
-            date_text = item.select_one('.date').get_text(strip=True)
-            # 简单提取日期
+            name = item.select_one('a').get_text(strip=True)
+            date_text = item.select_one('span').get_text(strip=True)
+            # 提取日期
             dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
             start_date = dates[0] if dates else ''
             end_date = dates[1] if len(dates) > 1 else start_date
-            # 其他字段暂时留空，可自行扩展
+            
             exhibitions.append({
                 "id": f"gz_{len(exhibitions)}",
                 "name": name,
@@ -94,16 +93,17 @@ def parse_sz_exhibitions(html):
     """解析深圳会展中心页面，返回展会列表"""
     soup = BeautifulSoup(html, 'html.parser')
     exhibitions = []
-    # --- 请根据实际页面结构调整选择器 ---
-    # 示例：假设展会在 class="event-item" 中
-    items = soup.select('.event-item')
+    # 真实页面选择器
+    items = soup.select('div.jiudian div.list')
     for item in items:
         try:
-            name = item.select_one('.event-title').get_text(strip=True)
-            date_text = item.select_one('.event-date').get_text(strip=True)
+            name = item.select_one('div.title a').get_text(strip=True)
+            date_text = item.select_one('div.time').get_text(strip=True)
+            # 提取日期
             dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
             start_date = dates[0] if dates else ''
             end_date = dates[1] if len(dates) > 1 else start_date
+            
             exhibitions.append({
                 "id": f"sz_{len(exhibitions)}",
                 "name": name,
