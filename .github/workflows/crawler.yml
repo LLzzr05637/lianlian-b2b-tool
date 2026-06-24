@@ -1,41 +1,158 @@
-name: 每日展会爬虫
+import requests
+from bs4 import BeautifulSoup
+import json
+import re
+import os
 
-# 给工作流写入仓库的权限（关键！）
-permissions:
-  contents: write
+# ======= 配置区 =======
+# 广州会展网 URL
+GZ_URL = "https://www.mice-gz.org/hz/a/48/index.html?p=true"
+# 深圳会展中心 URL
+SZ_URL = "https://www.szcec.com/szcec/cn-schedule/zl/index.html"
+# 备用展会数据 (如果网站抓取失败，则使用这些数据)
+BACKUP_EXHIBITIONS = [
+    {
+        "id": "backup_1",
+        "name": "广州国际智能制造技术与装备展览会",
+        "type": "国内",
+        "industry": "智能制造",
+        "location": "广州",
+        "venue": "广交会展馆",
+        "startDate": "2026-03-03",
+        "endDate": "2026-03-05",
+        "regLink": "https://www.mice-gz.org/hz/a/48/index.html?p=true",
+        "pastData": "2025年展商800家",
+        "list": "西门子、ABB等",
+        "source": "备用数据"
+    },
+    {
+        "id": "backup_2",
+        "name": "深圳国际工业制造技术展(ITES)",
+        "type": "国内",
+        "industry": "机械制造",
+        "location": "深圳",
+        "venue": "深圳国际会展中心",
+        "startDate": "2026-03-30",
+        "endDate": "2026-04-02",
+        "regLink": "https://www.szcec.com/szcec/cn-schedule/zl/index.html",
+        "pastData": "2025年展商1500家",
+        "list": "马扎克、大族激光等",
+        "source": "备用数据"
+    }
+]
 
-on:
-  schedule:
-    - cron: '0 2 * * *'   # 北京时间每天上午10点
-  workflow_dispatch:      # 允许手动触发
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
 
-jobs:
-  crawl:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+def get_html(url, timeout=10):
+    """获取页面HTML，失败返回None"""
+    try:
+        resp = requests.get(url, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+        resp.encoding = resp.apparent_encoding
+        return resp.text
+    except Exception as e:
+        print(f"请求失败 {url}: {e}")
+        return None
 
-      - name: 安装 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+def parse_gz_exhibitions(html):
+    """解析广州会展网页面，返回展会列表"""
+    soup = BeautifulSoup(html, 'html.parser')
+    exhibitions = []
+    # 真实页面选择器
+    items = soup.select('div.list-content ul li')
+    for item in items:
+        try:
+            name = item.select_one('a').get_text(strip=True)
+            date_text = item.select_one('span').get_text(strip=True)
+            # 提取日期
+            dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
+            start_date = dates[0] if dates else ''
+            end_date = dates[1] if len(dates) > 1 else start_date
+            
+            exhibitions.append({
+                "id": f"gz_{len(exhibitions)}",
+                "name": name,
+                "type": "国内",
+                "industry": "",
+                "location": "广州",
+                "venue": "",
+                "startDate": start_date,
+                "endDate": end_date,
+                "regLink": GZ_URL,
+                "pastData": "",
+                "list": "",
+                "source": "广州会展网爬虫"
+            })
+        except Exception as e:
+            print(f"解析广州展会条目出错: {e}")
+    return exhibitions
 
-      - name: 安装依赖
-        run: pip install requests beautifulsoup4 lxml
+def parse_sz_exhibitions(html):
+    """解析深圳会展中心页面，返回展会列表"""
+    soup = BeautifulSoup(html, 'html.parser')
+    exhibitions = []
+    # 真实页面选择器
+    items = soup.select('div.jiudian div.list')
+    for item in items:
+        try:
+            name = item.select_one('div.title a').get_text(strip=True)
+            date_text = item.select_one('div.time').get_text(strip=True)
+            # 提取日期
+            dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
+            start_date = dates[0] if dates else ''
+            end_date = dates[1] if len(dates) > 1 else start_date
+            
+            exhibitions.append({
+                "id": f"sz_{len(exhibitions)}",
+                "name": name,
+                "type": "国内",
+                "industry": "",
+                "location": "深圳",
+                "venue": "",
+                "startDate": start_date,
+                "endDate": end_date,
+                "regLink": SZ_URL,
+                "pastData": "",
+                "list": "",
+                "source": "深圳会展中心爬虫"
+            })
+        except Exception as e:
+            print(f"解析深圳展会条目出错: {e}")
+    return exhibitions
 
-      - name: 运行爬虫
-        run: python crawler.py
+def main():
+    all_exhibitions = []
 
-      - name: 检查文件是否变更并提交
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add exhibitions.json
-          # 只有文件确实变化时才提交，避免空提交导致失败
-          if git diff --staged --quiet; then
-            echo "exhibitions.json 没有变化，跳过提交"
-          else
-            git commit -m "自动更新展会数据 [skip ci]"
-            git push
-          fi
+    # 尝试抓取广州
+    gz_html = get_html(GZ_URL)
+    if gz_html:
+        gz_exh = parse_gz_exhibitions(gz_html)
+        all_exhibitions.extend(gz_exh)
+        print(f"广州抓取成功：{len(gz_exh)} 条")
+    else:
+        print("广州抓取失败，将使用备用数据")
+
+    # 尝试抓取深圳
+    sz_html = get_html(SZ_URL)
+    if sz_html:
+        sz_exh = parse_sz_exhibitions(sz_html)
+        all_exhibitions.extend(sz_exh)
+        print(f"深圳抓取成功：{len(sz_exh)} 条")
+    else:
+        print("深圳抓取失败，将使用备用数据")
+
+    # 如果所有抓取都失败（或抓取结果为空），则使用备用数据
+    if not all_exhibitions:
+        print("所有抓取未获取到数据，启用备用展会列表")
+        all_exhibitions = BACKUP_EXHIBITIONS
+
+    # 保存为 JSON 文件
+    with open('exhibitions.json', 'w', encoding='utf-8') as f:
+        json.dump(all_exhibitions, f, ensure_ascii=False, indent=2)
+
+    print(f"成功生成 exhibitions.json，共 {len(all_exhibitions)} 条展会")
+
+if __name__ == "__main__":
+    main()
