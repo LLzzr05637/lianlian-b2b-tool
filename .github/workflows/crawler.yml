@@ -1,41 +1,28 @@
-name: 每日展会爬虫
-
-# 给工作流写入仓库的权限（关键！）
-permissions:
-  contents: write
-
+name: 展会爬虫更新JSON
 on:
-  schedule:
-    - cron: '0 2 * * *'   # 北京时间每天上午10点
-  workflow_dispatch:      # 允许手动触发
-
+  push:
+    schedule:
+      # 每日凌晨2点自动运行，更新数据
+      - cron: "0 2 * * *"
 jobs:
-  crawl:
+  spider:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: 拉取代码
         uses: actions/checkout@v4
-
-      - name: 安装 Python
+      - name: 配置Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
+          python-version: "3.11"
       - name: 安装依赖
-        run: pip install requests beautifulsoup4 lxml
-
-      - name: 运行爬虫
-        run: python crawler.py
-
-      - name: 检查文件是否变更并提交
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          pip install requests beautifulsoup4 playwright
+          playwright install chromium
+      - name: 执行爬虫脚本
+        run: python spider.py
+      - name: 提交更新后的JSON
+        run: |
+          git config --global user.name "GitHub Spider Bot"
+          git config --global user.email "bot@github.com"
           git add exhibitions.json
-          # 只有文件确实变化时才提交，避免空提交导致失败
-          if git diff --staged --quiet; then
-            echo "exhibitions.json 没有变化，跳过提交"
-          else
-            git commit -m "自动更新展会数据 [skip ci]"
-            git push
-          fi
+          git diff --quiet && git diff --staged --quiet || (git commit -m "自动更新展会数据" && git push)
