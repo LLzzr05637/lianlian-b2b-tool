@@ -1,6 +1,5 @@
 name: 每日展会爬虫
 
-# 给工作流写入仓库的权限（关键！）
 permissions:
   contents: write
 
@@ -22,17 +21,19 @@ jobs:
           python-version: '3.11'
 
       - name: 安装依赖
-        run: pip install requests beautifulsoup4 lxml
+        run: |
+          pip install requests beautifulsoup4 lxml playwright
+          playwright install chromium
+          playwright install-deps chromium
 
       - name: 运行爬虫
         run: python crawler.py
 
-      - name: 检查文件是否变更并提交
+      - name: 检查文件并提交
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add exhibitions.json
-          # 只有文件确实变化时才提交，避免空提交导致失败
           if git diff --staged --quiet; then
             echo "exhibitions.json 没有变化，跳过提交"
           else
