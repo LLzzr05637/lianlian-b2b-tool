@@ -1,16 +1,15 @@
-import time
+import requests
+from bs4 import BeautifulSoup
 import json
 import re
 import os
-from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 
 # ======= 配置区 =======
 # 广州会展网 URL
 GZ_URL = "https://www.mice-gz.org/hz/a/48/index.html?p=true"
 # 深圳会展中心 URL
 SZ_URL = "https://www.szcec.com/szcec/cn-schedule/zl/index.html"
-# 备用展会数据
+# 备用展会数据 (如果网站抓取失败，则使用这些数据)
 BACKUP_EXHIBITIONS = [
     {
         "id": "backup_1",
@@ -42,60 +41,43 @@ BACKUP_EXHIBITIONS = [
     }
 ]
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "zh-CN,zh;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Referer": "https://www.baidu.com/",
-    "Connection": "keep-alive"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-def get_rendered_html(url, wait_second=3):
-    """使用playwright加载JS动态页面，返回完整渲染后html，失败返回None"""
+def get_html(url, timeout=10):
+    """获取页面HTML，失败返回None"""
     try:
-        with sync_playwright() as p:
-            # 无头模式，不弹出浏览器窗口
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context(extra_http_headers=HEADERS)
-            page = context.new_page()
-            page.goto(url, timeout=15000)
-            # 等待页面展会列表加载完成
-            time.sleep(wait_second)
-            html = page.content()
-            browser.close()
-            print(f"✅ 页面加载成功: {url}")
-            return html
+        resp = requests.get(url, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+        resp.encoding = resp.apparent_encoding
+        return resp.text
     except Exception as e:
-        print(f"❌ 页面加载失败 {url}: {str(e)}")
+        print(f"请求失败 {url}: {e}")
         return None
 
 def parse_gz_exhibitions(html):
-    """解析广州会展网"""
+    """解析广州会展网页面，返回展会列表"""
     soup = BeautifulSoup(html, 'html.parser')
     exhibitions = []
-    # 适配官网最新DOM选择器
+    # 真实页面选择器
     items = soup.select('div.list-content ul li')
-    print(f"广州页面匹配到列表条目: {len(items)} 个")
-
-    for idx, item in enumerate(items):
+    for item in items:
         try:
-            a_tag = item.select_one('a')
-            name = a_tag.get_text(strip=True) if a_tag else ""
-            date_span = item.select_one('span')
-            date_text = date_span.get_text(strip=True) if date_span else ""
-
-            # 正则匹配年月日
-            date_res = re.findall(r"\d{4}-\d{2}-\d{2}", date_text)
-            start_date = date_res[0] if date_res else ""
-            end_date = date_res[1] if len(date_res) >= 2 else start_date
-
+            name = item.select_one('a').get_text(strip=True)
+            date_text = item.select_one('span').get_text(strip=True)
+            # 提取日期
+            dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
+            start_date = dates[0] if dates else ''
+            end_date = dates[1] if len(dates) > 1 else start_date
+            
             exhibitions.append({
-                "id": f"gz_{idx}",
+                "id": f"gz_{len(exhibitions)}",
                 "name": name,
                 "type": "国内",
                 "industry": "",
                 "location": "广州",
-                "venue": "广交会展馆",
+                "venue": "",
                 "startDate": start_date,
                 "endDate": end_date,
                 "regLink": GZ_URL,
@@ -104,35 +86,31 @@ def parse_gz_exhibitions(html):
                 "source": "广州会展网爬虫"
             })
         except Exception as e:
-            print(f"广州单条解析异常: {str(e)}")
-            continue
+            print(f"解析广州展会条目出错: {e}")
     return exhibitions
 
 def parse_sz_exhibitions(html):
-    """解析深圳会展中心"""
+    """解析深圳会展中心页面，返回展会列表"""
     soup = BeautifulSoup(html, 'html.parser')
     exhibitions = []
+    # 真实页面选择器
     items = soup.select('div.jiudian div.list')
-    print(f"深圳页面匹配到列表条目: {len(items)} 个")
-
-    for idx, item in enumerate(items):
+    for item in items:
         try:
-            title_a = item.select_one('div.title a')
-            name = title_a.get_text(strip=True) if title_a else ""
-            time_div = item.select_one('div.time')
-            date_text = time_div.get_text(strip=True) if time_div else ""
-
-            date_res = re.findall(r"\d{4}-\d{2}-\d{2}", date_text)
-            start_date = date_res[0] if date_res else ""
-            end_date = date_res[1] if len(date_res) >= 2 else start_date
-
+            name = item.select_one('div.title a').get_text(strip=True)
+            date_text = item.select_one('div.time').get_text(strip=True)
+            # 提取日期
+            dates = re.findall(r'\d{4}-\d{2}-\d{2}', date_text)
+            start_date = dates[0] if dates else ''
+            end_date = dates[1] if len(dates) > 1 else start_date
+            
             exhibitions.append({
-                "id": f"sz_{idx}",
+                "id": f"sz_{len(exhibitions)}",
                 "name": name,
                 "type": "国内",
                 "industry": "",
                 "location": "深圳",
-                "venue": "深圳国际会展中心",
+                "venue": "",
                 "startDate": start_date,
                 "endDate": end_date,
                 "regLink": SZ_URL,
@@ -141,46 +119,40 @@ def parse_sz_exhibitions(html):
                 "source": "深圳会展中心爬虫"
             })
         except Exception as e:
-            print(f"深圳单条解析异常: {str(e)}")
-            continue
+            print(f"解析深圳展会条目出错: {e}")
     return exhibitions
 
 def main():
-    all_data = []
+    all_exhibitions = []
 
-    # 抓取广州展会
-    gz_html = get_rendered_html(GZ_URL)
+    # 尝试抓取广州
+    gz_html = get_html(GZ_URL)
     if gz_html:
-        gz_list = parse_gz_exhibitions(gz_html)
-        all_data.extend(gz_list)
-        print(f"广州有效抓取 {len(gz_list)} 条展会\n")
+        gz_exh = parse_gz_exhibitions(gz_html)
+        all_exhibitions.extend(gz_exh)
+        print(f"广州抓取成功：{len(gz_exh)} 条")
     else:
-        print("广州抓取失败，补充广州备用数据")
-        all_data.append(BACKUP_EXHIBITIONS[0])
+        print("广州抓取失败，将使用备用数据")
 
-    time.sleep(2)
-
-    # 抓取深圳展会
-    sz_html = get_rendered_html(SZ_URL)
+    # 尝试抓取深圳
+    sz_html = get_html(SZ_URL)
     if sz_html:
-        sz_list = parse_sz_exhibitions(sz_html)
-        all_data.extend(sz_list)
-        print(f"深圳有效抓取 {len(sz_list)} 条展会\n")
+        sz_exh = parse_sz_exhibitions(sz_html)
+        all_exhibitions.extend(sz_exh)
+        print(f"深圳抓取成功：{len(sz_exh)} 条")
     else:
-        print("深圳抓取失败，补充深圳备用数据")
-        all_data.append(BACKUP_EXHIBITIONS[1])
+        print("深圳抓取失败，将使用备用数据")
 
-    # 双重兜底：如果抓取+单站点备用后依然为空，加载全部备用
-    if not all_data:
-        print("无任何抓取数据，加载全部备用展会数据")
-        all_data = BACKUP_EXHIBITIONS
+    # 如果所有抓取都失败（或抓取结果为空），则使用备用数据
+    if not all_exhibitions:
+        print("所有抓取未获取到数据，启用备用展会列表")
+        all_exhibitions = BACKUP_EXHIBITIONS
 
-    # 输出JSON文件
-    with open("exhibitions.json", "w", encoding="utf-8") as f:
-        json.dump(all_data, f, ensure_ascii=False, indent=2)
+    # 保存为 JSON 文件
+    with open('exhibitions.json', 'w', encoding='utf-8') as f:
+        json.dump(all_exhibitions, f, ensure_ascii=False, indent=2)
 
-    print(f"\n===================== 完成 =====================")
-    print(f"共生成 {len(all_data)} 条展会数据，已保存至 exhibitions.json")
+    print(f"成功生成 exhibitions.json，共 {len(all_exhibitions)} 条展会")
 
 if __name__ == "__main__":
     main()
